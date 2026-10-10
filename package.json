@@ -1,0 +1,18 @@
+{
+  "name": "antiquariato-angelo",
+  "private": true,
+  "type": "module",
+  "description": "Antiquariato Angelo: sito IT/EN + pannello di gestione (Sanity Studio su /studio)",
+  "scripts": {
+    "build": "node scripts/fetch-content.mjs && node build.mjs && node scripts/finish.mjs && sanity build site/studio --yes",
+    "build:site": "node scripts/fetch-content.mjs && node build.mjs && node scripts/finish.mjs",
+    "studio": "sanity dev"
+  },
+  "engines": { "node": ">=22.12" },
+  "dependencies": {
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^5.0.0",
+    "styled-components": "^6.1.15"
+  }
+}

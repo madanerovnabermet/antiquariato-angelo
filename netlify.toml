@@ -1,0 +1,8 @@
+# Netlify builds the site from this repository on every push and every
+# "Publish" in the admin panel (via a build hook).
+[build]
+  command = "npm run build"
+  publish = "site"
+
+[build.environment]
+  NODE_VERSION = "22"
