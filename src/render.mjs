@@ -36,6 +36,9 @@ export const paths = {
   contact: (l) => `${l}/${seg[l].contact}/`,
 };
 
+// changes on every build, so browsers fetch fresh styles and scripts after an update
+const BUILD = Date.now().toString(36);
+
 function linker(from, preview) {
   if (preview === "embed") return {     // single-file preview: tokens resolved by the preview player
     page: (p) => "page:" + p + "index.html",
@@ -45,7 +48,7 @@ function linker(from, preview) {
   const up = preview ? "../".repeat(from.split("/").filter(Boolean).length) : "/";
   return {
     page: (p) => preview ? up + p + "index.html" : "/" + p,
-    asset: (p) => up + p,
+    asset: (p) => preview ? up + p : `${up}${p}?v=${BUILD}`,
     photo: (n, ext = "jpg") => /^https?:/.test(n) ? n : `${up}photos/${n}.${ext}`,
   };
 }
