@@ -20,10 +20,13 @@
     var c = ctx.conditions, wide = c.wide, cleanups = [];
     if (!c.motion) { release(); return; }
 
-    /* 1. Page intro: header, heading words, then the rest */
+    /* 1. Page intro: header, heading words, then the rest.
+       The CSS start state is removed first, so GSAP never mistakes it
+       for the words' resting position (that left the title half hidden). */
+    release();
     var intro = gsap.timeline({ defaults: { ease: "power3.out" } });
     intro.fromTo("[data-intro-head]", { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0);
-    if (has("main h1 [data-word]")) intro.fromTo("main h1 [data-word]", { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.07 }, 0.15);
+    if (has("main h1 [data-word]")) intro.fromTo("main h1 [data-word]", { y: 0, yPercent: 110 }, { y: 0, yPercent: 0, duration: 1.1, stagger: 0.07 }, 0.15);
     if (has("[data-intro]")) intro.fromTo("[data-intro]", { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08 }, 0.45);
     if (has("[data-intro-chip]")) intro.fromTo("[data-intro-chip]", { autoAlpha: 0, y: 16, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "back.out(1.6)" }, 0.9);
     if (has(".gallery__main")) {
@@ -32,7 +35,7 @@
       if (has(".gallery__thumbs li")) intro.fromTo(".gallery__thumbs li", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.06 }, 0.8);
     }
     release();
-    var introGuard = setTimeout(function () { if (intro.progress() < 1) intro.progress(1); }, 3500);
+    var introGuard = setTimeout(function () { if (intro.progress() < 1) intro.progress(1); gsap.set("main h1 [data-word]", { y: 0, yPercent: 0 }); }, 3500);
     cleanups.push(function () { clearTimeout(introGuard); });
 
     /* 2-3. Section headings and blocks: revealed when they enter the screen.
@@ -41,8 +44,8 @@
     var pending = [];
     $$("main h2").forEach(function (h) {
       var w = h.querySelectorAll("[data-word]"); if (!w.length) return;
-      gsap.set(w, { yPercent: 110 });
-      pending.push({ el: h, play: function () { gsap.to(w, { yPercent: 0, duration: 1.1, stagger: 0.08, ease: "power3.out", overwrite: true }); } });
+      gsap.set(w, { y: 0, yPercent: 110 });
+      pending.push({ el: h, play: function () { gsap.to(w, { y: 0, yPercent: 0, duration: 1.1, stagger: 0.08, ease: "power3.out", overwrite: true }); } });
     });
     $$("[data-reveal]").forEach(function (el, i) {
       gsap.set(el, { autoAlpha: 0, y: 40 });
