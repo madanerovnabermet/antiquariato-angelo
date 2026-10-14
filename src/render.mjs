@@ -250,6 +250,7 @@ export function home(lang, preview) {
       <div class="feature__text">
         <p class="feature__cat">${h.closer} · ${h.featKicker}</p>
         <h3 class="feature__title" id="feature-title">${esc(cu.name[lang])}</h3>
+        ${cu.text && cu.text[lang] ? `<p class="feature__lead">${esc(cu.text[lang])}</p>` : ""}
         <ol class="feature__steps">${h.steps.map(([n, d], i) => `<li class="step" data-step="${i}"><span class="step__name">${n}</span><span class="step__desc">${d}</span></li>`).join("")}</ol>
         <div class="feature__progress" aria-hidden="true"><i></i></div>
         <p class="feature__price">${s.price}</p>

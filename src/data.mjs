@@ -297,4 +297,9 @@ export const homeFeature = {
     en: "Drawing of a female figure with a pink wash, in a wooden frame with rosettes at the corners, hung on a pale wall as in a museum (staged image).",
   },
   focus: [[0.508, 0.27, 2.1], [0.767, 0.125, 2.6]],
+  // text shown under the title (written by the shop)
+  text: {
+    it: "Il pittore Bruno Cassinari (Piacenza, 1912 – Milano, 1992) ha realizzato numerosi disegni, studi e opere su carta utilizzando l'inchiostro di china.",
+    en: "The painter Bruno Cassinari (Piacenza, 1912 – Milan, 1992) made numerous drawings, studies and works on paper using Indian ink.",
+  },
 };
