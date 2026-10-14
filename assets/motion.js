@@ -69,19 +69,14 @@
     if (has(".hero") && wide) {
       var away = { trigger: ".hero", start: "top top", end: "bottom top", scrub: true };
       gsap.to(".hero__text", { yPercent: -12, autoAlpha: 0.4, ease: "none", scrollTrigger: away });
-      gsap.to(".visit-card", { y: -40, ease: "none", scrollTrigger: away });
+      gsap.to(".visit-card", { y: -30, ease: "none", scrollTrigger: away });
     }
 
-    /* 5. Home: shop-window lettering is written in, then light sweeps the gold */
-    if (has(".sign")) {
-      gsap.fromTo(".sign__panel", { scale: 0.95, borderRadius: 64 }, { scale: 1, borderRadius: 36, ease: "none", scrollTrigger: { trigger: ".sign", start: "top bottom", end: "top 30%", scrub: true } });
-      gsap.timeline({ scrollTrigger: { trigger: ".sign", start: "top 75%", once: true } })
-        .fromTo(".sign__img", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 2.2, ease: "power2.inOut" })
-        .fromTo(".sign__side > *", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out" }, 0.5)
-        .fromTo(".sign__sheen i", { xPercent: -120 }, { xPercent: 420, duration: 1.8, ease: "power2.inOut" }, 1.9);
-      gsap.to(".sign__sheen i", { xPercent: 420, startAt: { xPercent: -120 }, duration: 2, ease: "power2.inOut", repeat: -1, repeatDelay: 6, delay: 6,
-        scrollTrigger: { trigger: ".sign", start: "top bottom", end: "bottom top", toggleActions: "play pause resume pause" } });
-      if (wide) gsap.fromTo(".sign__photo img", { yPercent: -6, scale: 1.12 }, { yPercent: 6, scale: 1.12, ease: "none", scrollTrigger: { trigger: ".sign", start: "top bottom", end: "bottom top", scrub: true } });
+    /* 5. Home: the statement lines draw in, one after another */
+    if (has(".statement")) {
+      gsap.timeline({ scrollTrigger: { trigger: ".statement", start: "top 78%", once: true } })
+        .fromTo(".statement__rule", { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: "power2.inOut" }, 0)
+        .fromTo(".statement__kicker, .statement__info", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.15, ease: "power3.out" }, 0.3);
     }
 
     /* 6. Home: category marquee speeds up while scrolling */
@@ -96,19 +91,24 @@
 
     /* 7. Home: "up close" room. Wide screens pin it: whole piece, face, rose */
     if (has(".feature")) {
-      gsap.fromTo(".feature__pin", { scale: 0.94, borderRadius: 64 }, { scale: 1, borderRadius: 36, ease: "none", scrollTrigger: { trigger: ".feature", start: "top bottom", end: "top top", scrub: true } });
+      gsap.fromTo(".feature__pin", { scale: 0.94, borderRadius: 48 }, { scale: 1, borderRadius: 24, ease: "none", scrollTrigger: { trigger: ".feature", start: "top bottom", end: "top top", scrub: true } });
       if (wide) {
         root.classList.add("is-pinned");
         var steps = $$(".feature .step"), img = $(".feature__img"), bar = $(".feature__progress i");
         gsap.set(steps.slice(1), { autoAlpha: 0, y: 14 });
-        var focus = function (fx, fy, s) { return { scale: s, xPercent: -(fx - 0.5) * 100 * s, yPercent: -(fy - 0.5) * 100 * s }; };
+        var focus = function (fx, fy, s) {
+          var lim = (s - 1) / 2 * 100, cl = function (v) { return Math.max(-lim, Math.min(lim, v)); };
+          return { scale: s, xPercent: cl(-(fx - 0.5) * 100 * s), yPercent: cl(-(fy - 0.5) * 100 * s) };
+        };
+        var pts = (($(".feature__stage") || {}).getAttribute ? $(".feature__stage").getAttribute("data-focus") : "") || "0.5,0.38,2.2;0.38,0.72,2.5";
+        pts = pts.split(";").map(function (p) { return p.split(",").map(Number); });
         gsap.timeline({ defaults: { ease: "power2.inOut" }, scrollTrigger: { trigger: ".feature", start: "top top", end: "+=240%", pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
           onUpdate: function (self) { if (bar) bar.style.transform = "scaleX(" + self.progress.toFixed(3) + ")"; } } })
           .to({}, { duration: 0.35 })
-          .to(img, Object.assign({ duration: 1 }, focus(0.5, 0.38, 2.2)))
+          .to(img, Object.assign({ duration: 1 }, focus(pts[0][0], pts[0][1], pts[0][2])))
           .to(steps[0], { autoAlpha: 0, y: -14, duration: 0.3 }, "<0.2").to(steps[1], { autoAlpha: 1, y: 0, duration: 0.35 }, "<0.15")
           .to({}, { duration: 0.4 })
-          .to(img, Object.assign({ duration: 1 }, focus(0.38, 0.72, 2.5)))
+          .to(img, Object.assign({ duration: 1 }, focus(pts[1][0], pts[1][1], pts[1][2])))
           .to(steps[1], { autoAlpha: 0, y: -14, duration: 0.3 }, "<0.2").to(steps[2], { autoAlpha: 1, y: 0, duration: 0.35 }, "<0.15")
           .to({}, { duration: 0.5 });
         cleanups.push(function () { root.classList.remove("is-pinned"); });
@@ -138,7 +138,6 @@
       var onUpdate = function () { ScrollTrigger.refresh(); cards.forEach(function (cd) { if (!cd._in && !cd.hidden) cio.observe(cd); }); };
       document.addEventListener("catalog:update", onUpdate);
       cleanups.push(function () { cio.disconnect(); clearInterval(cnet); document.removeEventListener("catalog:update", onUpdate); cards.forEach(function (cd) { gsap.set(cd, { clearProps: "all" }); }); });
-      if (wide && has(".cards .card--1")) gsap.to(".cards .card--1", { yPercent: -10, ease: "none", scrollTrigger: { trigger: ".cards", start: "top bottom", end: "bottom top", scrub: true } });
     }
 
     /* 9. Home: category tiles drift; dark panels grow in */
@@ -146,7 +145,7 @@
       gsap.fromTo(im, { yPercent: -5, scale: 1.12 }, { yPercent: 5, scale: 1.12, ease: "none", scrollTrigger: { trigger: im.parentNode, start: "top bottom", end: "bottom top", scrub: true } });
     });
     $$(".visit__panel, .trade__panel, .sell__panel").forEach(function (p) {
-      gsap.fromTo(p, { scale: 0.95, borderRadius: 64 }, { scale: 1, borderRadius: 36, ease: "none", scrollTrigger: { trigger: p, start: "top bottom", end: "top 40%", scrub: true } });
+      gsap.fromTo(p, { scale: 0.95, borderRadius: 48 }, { scale: 1, borderRadius: 24, ease: "none", scrollTrigger: { trigger: p, start: "top bottom", end: "top 40%", scrub: true } });
     });
 
     /* 10. Story page: photos move gently inside their frames */
