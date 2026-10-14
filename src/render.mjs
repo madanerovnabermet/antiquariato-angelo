@@ -1,6 +1,6 @@
 // Page templates. Every page is static HTML with real text, so search engines
 // and visitors without JavaScript see the full content.
-import { categories, items, featured, closeUpItem, categoryCover } from "./data.mjs";
+import { categories, items, featured, homeFeature, categoryCover } from "./data.mjs";
 import { t, seg, shop, waLink } from "./i18n.mjs";
 
 export const SITE = "https://antiquariatoangelo.com"; // domain confirmed by the shop
@@ -100,7 +100,7 @@ ${LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${abs(alt[l])}">
 ${image ? `<meta property="og:image" content="${/^https?:/.test(image) ? image : `${SITE}/photos/${image}.jpg`}">` : ""}
 <meta name="theme-color" content="#F3F1EC">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..600;1,300..600&family=Jost:wght@300..500&display=swap">
 <link rel="stylesheet" href="${L.asset("assets/styles.css")}">
 <script>(function(){var d=document.documentElement;d.classList.add('js');if(matchMedia('(prefers-reduced-motion: no-preference)').matches){d.classList.add('intro-pending');setTimeout(function(){d.classList.remove('intro-pending')},2500)}})();</script>
 ${[store, ...jsonld].map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
@@ -181,7 +181,7 @@ const priceLine = (s, it) => it.status === "sold"
 function card(lang, L, it, extra = "") {
   const s = t[lang];
   return `<a class="card${it.status === "sold" ? " is-sold" : ""}" href="${L.page(paths.item(lang, it.slug))}" data-name="${esc((it.name[lang] + " " + it.ref).toLowerCase())}" data-added="${it.added}-${String(items.indexOf(it)).padStart(4, "0")}" ${extra}>
-  <div class="card__media"><img src="${L.photo(it.photos[0])}" alt="${esc(it.alt[lang])}" width="1280" height="1600" loading="lazy" decoding="async"><span class="card__go" aria-hidden="true">↗</span></div>
+  <div class="card__media"><img src="${L.photo(it.photos[0])}" alt="${esc(it.alt[lang])}" width="1280" height="1600" loading="lazy" decoding="async"></div>
   <div class="card__body">
     <span class="card__cat">${byId[it.cat][lang]}</span>
     <h3 class="card__title">${esc(it.name[lang])}</h3>
@@ -200,13 +200,13 @@ const pageHead = (kicker, h1, intro) => `<header class="page-head">
 export function home(lang, preview) {
   const path = paths.home(lang), L = linker(path, preview), s = t[lang], h = s.home;
   const feat = featured.map((sl) => bySlug[sl]).filter(Boolean);
-  const cu = closeUpItem;
-  const cuLink = abs(paths.item(lang, cu.slug));
+  const cu = homeFeature;
+  const cuLink = abs(paths.home(lang));
   const catRow = (hidden) => `<ul class="marquee__row"${hidden ? ' aria-hidden="true"' : ""}>${categories.map((c) => `<li><a href="${L.page(paths.category(lang, c.id))}"${hidden ? ' tabindex="-1"' : ""}>${c[lang]}</a></li>`).join("")}</ul>`;
   const catTiles = categories.map((c) => {
     const n = countIn(c.id), cover = categoryCover[c.id];
     return `<a class="cat-tile${cover ? "" : " cat-tile--empty"}" href="${L.page(paths.category(lang, c.id))}" data-reveal>
-      ${cover ? `<img src="${L.photo(cover)}" alt="" width="1280" height="1600" loading="lazy" decoding="async">` : `<span class="cat-tile__mono" aria-hidden="true">${c[lang].charAt(0)}</span>`}
+      <span class="cat-tile__media">${cover ? `<img src="${L.photo(cover)}" alt="" width="1280" height="1600" loading="lazy" decoding="async">` : `<span class="cat-tile__mono" aria-hidden="true">${c[lang].charAt(0)}</span>`}</span>
       <span class="cat-tile__label"><span class="cat-tile__name">${c[lang]}</span><span class="cat-tile__count">${n ? h.pieces(n) : h.soon}</span></span>
     </a>`;
   }).join("");
@@ -228,24 +228,11 @@ export function home(lang, preview) {
   </div>
 </section>
 
-<section class="sign" id="vetrina" aria-labelledby="sign-title">
-  <div class="sign__panel">
-    <div class="sign__art">
-      <h2 class="visually-hidden" id="sign-title">${h.signKicker}</h2>
-      <img class="sign__img" src="${L.photo("insegna-oro", "webp")}" alt="${esc(h.signAlt)}" width="1800" height="914" decoding="async">
-      <span class="sign__sheen" aria-hidden="true" style="--mask: url('${L.photo("insegna-oro", "webp")}')"><i></i></span>
-    </div>
-    <div class="sign__side">
-      <p class="sign__kicker">${h.signKicker}</p>
-      <figure class="sign__photo"><img src="${L.photo("negozio-interno-arco")}" alt="${esc(s.story.caps[0])}" width="1200" height="1600" loading="lazy" decoding="async"><figcaption>${h.signCaption}</figcaption></figure>
-      <p class="sign__text">${h.signText}</p>
-      <p class="sign__info">${h.signInfo}</p>
-      <div class="sign__actions">
-        <a class="btn btn--light magnetic" href="${shop.phoneHref}">${s.call} <span class="nowrap">${shop.phone}</span></a>
-        <a class="btn btn--outline-light" href="${waLink()}" target="_blank" rel="noopener">${ICON.wa}WhatsApp</a>
-      </div>
-    </div>
-  </div>
+<section class="statement" id="vetrina" aria-labelledby="stmt-title">
+  <p class="statement__kicker">${h.stmtKicker}</p>
+  <h2 class="statement__title display" id="stmt-title">${words(h.stmtTitle)}</h2>
+  <span class="statement__rule" aria-hidden="true"></span>
+  <p class="statement__info">${h.stmtInfo}<br><a class="link-under" href="${shop.phoneHref}">${shop.phone}</a> <span aria-hidden="true">·</span> <a class="link-under" href="${waLink()}" target="_blank" rel="noopener">WhatsApp</a></p>
 </section>
 
 <nav class="marquee" aria-label="${h.marquee}"><div class="marquee__track">${catRow(false)}${catRow(true)}</div></nav>
@@ -261,23 +248,24 @@ export function home(lang, preview) {
   <article class="feature" aria-labelledby="feature-title">
     <div class="feature__pin">
       <div class="feature__text">
-        <p class="feature__cat">${h.closer} · ${byId[cu.cat][lang]}</p>
-        <h3 class="feature__title" id="feature-title"><a href="${L.page(paths.item(lang, cu.slug))}">${esc(cu.name[lang])}</a></h3>
+        <p class="feature__cat">${h.closer} · ${h.featKicker}</p>
+        <h3 class="feature__title" id="feature-title">${esc(cu.name[lang])}</h3>
         <ol class="feature__steps">${h.steps.map(([n, d], i) => `<li class="step" data-step="${i}"><span class="step__name">${n}</span><span class="step__desc">${d}</span></li>`).join("")}</ol>
         <div class="feature__progress" aria-hidden="true"><i></i></div>
-        <p class="feature__price">${s.price} · ${s.ref} ${cu.ref}</p>
-        <a class="btn btn--light magnetic" href="${waLink(s.item.waMsg(cu.name[lang], cu.ref, cuLink))}" target="_blank" rel="noopener">${ICON.wa}${s.item.ask}</a>
+        <p class="feature__price">${s.price}</p>
+        <a class="btn btn--light magnetic" href="${waLink(h.featMsg(cu.name[lang], cuLink))}" target="_blank" rel="noopener">${ICON.wa}${h.featAsk}</a>
+        <p class="feature__note">${h.featStaged}</p>
       </div>
-      <div class="feature__stage">
-        <div class="frame"><img class="feature__img" src="${L.photo("dipinto-ritratto-con-rosa-hq")}" alt="${esc(cu.alt[lang])}" width="1200" height="1600" loading="lazy" decoding="async"></div>
-        <div class="feature__details" role="group" aria-label="${s.item.specs}">
-          <figure class="crop crop--face"><div class="crop__box"><img src="${L.photo("dipinto-ritratto-con-rosa-hq")}" alt="" loading="lazy" decoding="async"></div><figcaption>${h.steps[1][0]}</figcaption></figure>
-          <figure class="crop crop--rose"><div class="crop__box"><img src="${L.photo("dipinto-ritratto-con-rosa-hq")}" alt="" loading="lazy" decoding="async"></div><figcaption>${h.steps[2][0]}</figcaption></figure>
+      <div class="feature__stage" data-focus="${cu.focus.map((f) => f.join(",")).join(";")}">
+        <div class="frame"><img class="feature__img" src="${L.photo(cu.photo)}" alt="${esc(cu.alt[lang])}" width="${cu.w}" height="${cu.h}" loading="lazy" decoding="async"></div>
+        <div class="feature__details" role="group" aria-label="${h.closer}">
+          <figure class="crop crop--a"><div class="crop__box"><img src="${L.photo(cu.photo)}" alt="" loading="lazy" decoding="async"></div><figcaption>${h.steps[1][0]}</figcaption></figure>
+          <figure class="crop crop--b"><div class="crop__box"><img src="${L.photo(cu.photo)}" alt="" loading="lazy" decoding="async"></div><figcaption>${h.steps[2][0]}</figcaption></figure>
         </div>
       </div>
     </div>
   </article>
-  <div class="cards">${feat.map((it, i) => card(lang, L, it).replace('class="card', `class="card card--${i}`)).join("")}</div>
+  <div class="cards">${feat.map((it) => card(lang, L, it)).join("")}</div>
   <p class="arrivals__more"><a class="btn btn--ghost" href="${L.page(paths.collection(lang))}">${h.seeAll} ${arr}</a></p>
 </section>
 
@@ -312,7 +300,7 @@ export function home(lang, preview) {
 
 ${visitBlock(lang, L, h.visitTitle, h.visitText)}`;
 
-  return layout({ lang, path, alt: { it: paths.home("it"), en: paths.home("en") }, title: h.title, desc: h.desc, body, L, nav: null, image: "negozio-interno-arco", bodyClass: "page-home" });
+  return layout({ lang, path, alt: { it: paths.home("it"), en: paths.home("en") }, title: h.title, desc: h.desc, body, L, nav: null, image: homeFeature.photo, bodyClass: "page-home" });
 }
 
 function visitBlock(lang, L, title, text) {
@@ -529,7 +517,7 @@ export function welcome(preview) {
 <link rel="alternate" hreflang="x-default" href="${SITE}/">
 <meta name="theme-color" content="#F3F1EC">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..600;1,300..600&family=Jost:wght@300..500&display=swap">
 <link rel="stylesheet" href="${L.asset("assets/styles.css")}">
 </head>
 <body class="page-welcome">

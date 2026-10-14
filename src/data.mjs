@@ -234,12 +234,22 @@ const card = (url) => cdn(url, "w=1280&h=1600&fit=fill&bg=EFEBE4&auto=format&q=8
 const big = (url) => cdn(url, "w=1600&auto=format&q=82");
 const both = (o) => (o && (o.it || o.en) ? { it: o.it || o.en, en: o.en || o.it } : undefined);
 
+// Photos imported from this project keep their file name in the panel. If the
+// site has a cleaned-up version of that same file, use it; any photo uploaded
+// later in the panel (new name) is used as it is.
+const localPhoto = (name) => {
+  const stem = (name || "").replace(/\.(jpe?g|png|webp)$/i, "");
+  return stem && /^[a-z0-9-]+$/.test(stem) && existsSync(new URL(`../photos/${stem}.jpg`, import.meta.url)) ? stem : null;
+};
+
 function fromLive(d) {
+  const mainLocal = localPhoto(d.mainName);
+  const gallery = (d.gallery || []).map((u, i) => (u ? localPhoto((d.galleryNames || [])[i]) || big(u) : null)).filter(Boolean);
   return {
     ref: d.ref, slug: d.slug, cat: d.category, status: d.status === "sold" ? "sold" : "available",
     added: (d.added || (d._createdAt || "").slice(0, 10) || "2026-01-01"),
     newArrival: !!d.newArrival,
-    photos: [card(d.main), big(d.main), ...(d.gallery || []).filter(Boolean).map(big)],
+    photos: [mainLocal || card(d.main), mainLocal || big(d.main), ...gallery],
     name: both(d.name), desc: both(d.desc) || { it: "", en: "" },
     alt: both(d.alt) || both(d.name),
     specs: { author: d.author, dimensions: d.dimensions, material: both(d.material), era: both(d.era), condition: both(d.condition) },
@@ -276,3 +286,15 @@ if (live && live.settings) {
 export { localItems };
 // the painting used in the "up close" scene on the home page (its detail crops are fixed)
 export const closeUpItem = items.find((i) => i.slug === closeUpSlug) || localItems.find((i) => i.slug === closeUpSlug);
+
+// "Up close" scene on the home page: a staged photo (the piece shown on a museum
+// wall). focus = the two close-ups the scroll zooms into: x, y (0–1) and zoom.
+export const homeFeature = {
+  photo: "disegno-museo", w: 1500, h: 2000,
+  name: { it: "Figura femminile", en: "Female figure" },
+  alt: {
+    it: "Disegno di una figura femminile con velatura rosa, in una cornice di legno con rosette agli angoli, appeso a una parete chiara come in un museo (immagine ambientata).",
+    en: "Drawing of a female figure with a pink wash, in a wooden frame with rosettes at the corners, hung on a pale wall as in a museum (staged image).",
+  },
+  focus: [[0.508, 0.27, 2.1], [0.767, 0.125, 2.6]],
+};
