@@ -184,7 +184,8 @@ html:not(.js) .masthead, .no-motion-lib .masthead { position: relative; }
 .feature__text { grid-column: 1 / span 5; }
 .feature__cat, .card__cat { margin: 0; font: 400 .66rem/1.4 var(--f-sans); letter-spacing: .22em; text-transform: uppercase; color: var(--on-ink-soft); }
 .feature__title { margin: 14px 0 0; font: 400 clamp(2.4rem, 1.4rem + 2.6vw, 4.2rem)/1 var(--f-display); letter-spacing: -.01em; text-wrap: balance; }
-.feature__steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 16px; }
+.feature__lead { max-width: 40ch; margin: 18px 0 0; font: 300 1rem/1.7 var(--f-sans); color: var(--on-ink-soft); }
+.feature__steps { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 16px; }
 .step { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid rgba(243,241,236,.16); }
 .step__name { font: italic 400 1.6rem/1.2 var(--f-display); }
 .step__desc { font-size: .95rem; font-weight: 300; color: var(--on-ink-soft); max-width: 36ch; }
