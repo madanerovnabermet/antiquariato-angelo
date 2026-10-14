@@ -9,7 +9,8 @@ const GROQ = `{
   "items": *[_type == "item" && status in ["available","sold"] && defined(slug.current) && defined(mainPhoto.asset)] | order(added desc, _createdAt desc) {
     ref, status, newArrival, category, name, desc, alt, "slug": slug.current, added,
     author, dimensions, material, era, condition,
-    "main": mainPhoto.asset->url, "gallery": gallery[].asset->url, _createdAt
+    "main": mainPhoto.asset->url, "mainName": mainPhoto.asset->originalFilename,
+    "gallery": gallery[].asset->url, "galleryNames": gallery[].asset->originalFilename, _createdAt
   },
   "settings": *[_id == "settings"][0]
 }`;
